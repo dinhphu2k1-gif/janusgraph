@@ -25,6 +25,9 @@ import java.util.List;
 /**
  * Handles the unique allocation of ids. Returns blocks of ids that are uniquely allocated to the caller so that
  * they can be used to uniquely identify elements. *
+ * <br>
+ * Xử lý việc phân bổ id duy nhất. Trả về các khối id được phân bổ duy nhất cho người gọi để chúng có thể được sử dụng
+ * để xác định duy nhất các phần tử.
  *
  * @author Matthias Broecheler (me@matthiasb.com)
  */

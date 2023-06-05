@@ -131,6 +131,9 @@ import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.RE
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.REPLACE_INSTANCE_IF_EXISTS;
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.SCRIPT_EVAL_ENABLED;
 
+/**
+ * Dùng cho các operation thông thường, không phải transaction
+ */
 public class StandardJanusGraph extends JanusGraphBlueprintsGraph {
 
     private static final Logger log =
@@ -159,21 +162,58 @@ public class StandardJanusGraph extends JanusGraphBlueprintsGraph {
     }
 
     private final GraphDatabaseConfiguration config;
+    /**
+     * Storage backend
+     */
     private final Backend backend;
+    /**
+     * Xử lý việc phân bổ id. Vd: gán id cho 1 đỉnh
+     */
     private final IDManager idManager;
+    /**
+     * Chưa rõ nó làm gì
+     */
     private final VertexIDAssigner idAssigner;
     private final TimestampProvider times;
+    /**
+     * Class thực hiện vô hiệu hóa cache. Chưa rõ vô hiệu hóa để lm gì, có nhiều lợi ích mà nhỉ
+     */
     private final CacheInvalidationService cacheInvalidationService;
 
 
     //Serializers
+    /**
+     * Chưa hiểu
+     */
     protected final IndexSerializer indexSerializer;
+    /**
+     * Chưa hiểu
+     */
     protected final EdgeSerializer edgeSerializer;
+    /**
+     * Chưa hiểu
+     */
     protected final Serializer serializer;
 
     //Caches
+    /**
+     * Truy vấn 1 phần dữ liệu được xác định bởi điểm bắt đầu  và điểm kết thúc.
+     * Trả về tất cả các StaticBuffers ở trong phạm vi được cho.
+     * <br>
+     * Nếu SliceQuery được đánh dấu là tĩnh, thì tập hợp kết quả sẽ không thay đổi
+     */
     public final SliceQuery vertexExistenceQuery;
     private final RelationQueryCache queryCache;
+    /**
+     * SchemaCache được cơ sở dữ liệu đồ thị JanusGraph duy trì để thực hiện việc tra cứu thường xuyên các đỉnh lược đồ
+     * và các thuộc tính của chúng hiệu quả hơn thông qua lớp bộ nhớ đệm chuyên dụng.
+     * <br>
+     * Các đỉnh giản đồ là các đỉnh kiểu và các đỉnh liên quan. SchemaCache tăng tốc hai loại tra cứu:
+     * <ul>
+     *     <li>Truy xuất một loại theo tên của nó (tra cứu chỉ mục)</li>
+     *     <li>Truy xuất các mối quan hệ của một đỉnh</li>
+     * </ul>
+     */
     private final SchemaCache schemaCache;
 
     //Log
@@ -183,12 +223,18 @@ public class StandardJanusGraph extends JanusGraphBlueprintsGraph {
     private volatile ShutdownThread shutdownHook;
 
     //Index selection
+    /**
+     * Chưa hiểu
+     */
     private final IndexSelectionStrategy indexSelector;
 
     //Gremlin Script Engine
     private final GremlinScriptEngine scriptEngine;
 
     private volatile boolean isOpen;
+    /**
+     * Đếm 1 số transaction
+     */
     private final AtomicLong txCounter;
 
     private final Set<StandardJanusGraphTx> openTransactions;
@@ -232,6 +278,9 @@ public class StandardJanusGraph extends JanusGraphBlueprintsGraph {
         openTransactions = Collections.newSetFromMap(new ConcurrentHashMap<>(100, 0.75f, 1));
 
         //Register instance and ensure uniqueness
+        /**
+         * Định danh cho instance
+         */
         String uniqueInstanceId = configuration.getUniqueGraphId();
         ModifiableConfiguration globalConfig = getGlobalSystemConfig(backend);
         final boolean instanceExists = globalConfig.has(REGISTRATION_TIME, uniqueInstanceId);
@@ -311,6 +360,9 @@ public class StandardJanusGraph extends JanusGraphBlueprintsGraph {
         return cacheInvalidationService;
     }
 
+    /**
+     * Chắc là close graph
+     */
     private synchronized void closeInternal() {
 
         if (!isOpen) return;
@@ -453,6 +505,9 @@ public class StandardJanusGraph extends JanusGraphBlueprintsGraph {
         return buildTransaction().threadBound().start();
     }
 
+    /**
+     * Tạo transaction
+     */
     public StandardJanusGraphTx newTransaction(final TransactionConfiguration configuration) {
         if (!isOpen) ExceptionFactory.graphShutdown();
         try {

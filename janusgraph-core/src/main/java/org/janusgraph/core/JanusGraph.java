@@ -98,6 +98,10 @@ public interface JanusGraph extends Transaction {
      * With this API, those who use JanusGraph as an embedded library rather
      * than JanusGraph server could execute gremlin queries in plain string
      * format.
+     * <br>
+     * Đánh giá 1 câu truy vấn và trả về kết quả.
+     * Với API này, có thể sử dụng JanusGraph như 1 thư viện nhúng thay vì
+     * JanusGraph server để có thể thực hiện truy vấn
      *
      * @param gremlinScript A gremlin query in string format
      * @param commit Whether the script shall be committed or rolled back

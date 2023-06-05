@@ -53,7 +53,8 @@ import java.util.function.Consumer;
 /**
  * Blueprints specific implementation for {@link JanusGraph}.
  * Handles thread-bound transactions.
- *
+ * <br>
+ * Dùng cho transaction
  * @author Matthias Broecheler (me@matthiasb.com)
  */
 public abstract class JanusGraphBlueprintsGraph implements JanusGraph {

@@ -87,6 +87,12 @@ public class VertexIDAssigner implements AutoCloseable {
     private final int partitionIdBound;
     private final boolean hasLocalPartitions;
 
+    /**
+     * Contructor
+     * @param config config janusgraph
+     * @param idAuthority xử lý phân bổ các block ids
+     * @param idAuthFeatures mô tả các tính năng được support bởi storage backend
+     */
     public VertexIDAssigner(Configuration config, IDAuthority idAuthority, StoreFeatures idAuthFeatures) {
         Preconditions.checkNotNull(idAuthority);
         this.idAuthority = idAuthority;

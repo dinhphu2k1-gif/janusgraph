@@ -20,6 +20,9 @@ import org.janusgraph.diskstorage.util.time.TimestampProviders;
 
 /**
  * Describes features supported by a storage backend.
+ * <br>
+ * Mô tả các tính năng được hỗ trợ bởi storage backend.
+ * Chỉ toàn là boolean thôi
  *
  * @author Matthias Broecheler (me@matthiasb.com)
  * @author Dan LaRocque (dalaro@hopcount.org)
