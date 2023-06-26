@@ -244,6 +244,7 @@ public class StandardJanusGraph extends JanusGraphBlueprintsGraph {
     public StandardJanusGraph(GraphDatabaseConfiguration configuration) {
 
         this.config = configuration;
+        // mỗi 1 object StandardJanusGraph tương ứng với 1 backend ( = 1 connection tơi Hbase)
         this.backend = configuration.getBackend();
 
         this.name = configuration.getGraphName();

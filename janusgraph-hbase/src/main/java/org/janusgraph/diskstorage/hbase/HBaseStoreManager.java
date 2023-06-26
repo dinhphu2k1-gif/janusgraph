@@ -301,6 +301,7 @@ public class HBaseStoreManager extends DistributedStoreManager implements KeyCol
         this.shortCfNames = config.get(SHORT_CF_NAMES);
 
         try {
+            // khởi tạo connection
             this.cnx = ConnectionFactory.createConnection(hconf);
         } catch (IOException e) {
             throw new PermanentBackendException(e);
@@ -320,6 +321,9 @@ public class HBaseStoreManager extends DistributedStoreManager implements KeyCol
         openStores = new ConcurrentHashMap<>();
     }
 
+    /**
+     * Mapping column family trên bảng Hbase
+     */
     public static BiMap<String, String> createShortCfMap(Configuration config) {
         return ImmutableBiMap.<String, String>builder()
                 .put(INDEXSTORE_NAME, "g")
@@ -392,6 +396,9 @@ public class HBaseStoreManager extends DistributedStoreManager implements KeyCol
         return fb.build();
     }
 
+    /**
+     * Thực hiện lưu data vào hbase
+     */
     @Override
     public void mutateMany(Map<String, Map<StaticBuffer, KCVMutation>> mutations, StoreTransaction txh) throws BackendException {
         Long putTimestamp = null;
@@ -424,6 +431,7 @@ public class HBaseStoreManager extends DistributedStoreManager implements KeyCol
 
             try {
                 table = cnx.getTable(tableName);
+                // Method that does a batch call on Deletes, Gets, Puts, Increments, Appends, RowMutations.
                 table.batch(batch, new Object[batch.size()]);
             } finally {
                 IOUtils.closeQuietly(table);
@@ -437,6 +445,10 @@ public class HBaseStoreManager extends DistributedStoreManager implements KeyCol
         }
     }
 
+    /**
+     * Tạo 1 object kết nối với bảng Hbase, mỗi object tương ứng với column family nhưng lại có chung 1 connection
+     * @param longName tên column family
+     */
     @Override
     public KeyColumnValueStore openDatabase(String longName, StoreMetaData.Container metaData) throws BackendException {
         // HBase does not support retrieving cell-level TTL by the client.

@@ -64,6 +64,7 @@ public class ConfigurationUtil {
         return instantiate(className,new Object[0],new Class[0]);
     }
 
+    // Khởi tạo 1 object từ className
     public static <T> T instantiate(String className, Object[] constructorArgs, Class[] classes) {
         Preconditions.checkArgument(constructorArgs!=null && classes!=null);
         Preconditions.checkArgument(constructorArgs.length==classes.length);
