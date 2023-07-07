@@ -16,6 +16,7 @@ package org.janusgraph.graphdb.database.util;
 
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphElement;
+import org.janusgraph.core.JanusGraphFactory;
 import org.janusgraph.core.PropertyKey;
 import org.janusgraph.core.schema.JanusGraphIndex;
 import org.janusgraph.diskstorage.BackendException;
@@ -481,5 +482,47 @@ public class StaleIndexRecordUtil {
         if(!index.isMixedIndex()){
             throw new IllegalArgumentException("Index ["+index.name()+"] is not a Mixed index but a Mixed index is expected");
         }
+    }
+
+    public static void main(String[] args) throws BackendException {
+        StandardJanusGraph graph = (StandardJanusGraph) JanusGraphFactory.open("/home/dinhphu/janusgraph/conf/janusgraph-hbase.properties");
+        StandardJanusGraphTx tx = (StandardJanusGraphTx) graph.newTransaction();
+        ManagementSystem mgmt = (ManagementSystem) graph.openManagement();
+        // Let's say we want to remove non-existent vertex from a stale index.
+        // We will assume the next constraints:
+        // vertex id is 12345;
+        // Composite index name is: nameIndex
+        // There is a single indexed property: name
+        // Value of the vertex property is: HelloWorld
+        long vertexId = 301638860856L;
+        String compositeIndexName = "domainGuidIndex";
+        String propertyKeyName = "domainGuid";
+        String value = "db36f7fb7186e97bebb66a3ba08a5854";
+        PropertyKey propertyKey = mgmt.getPropertyKey(propertyKeyName);
+        long propertyKeyId = propertyKey.longId();
+        IndexRecordEntry namePropertyIndexRecord = new IndexRecordEntry(propertyKeyId, value, propertyKey);
+        IndexRecordEntry[] fullIndexRecord = new IndexRecordEntry[]{namePropertyIndexRecord};
+        JanusGraphElement elementToBeRemoved = new CacheVertex(tx, vertexId, ElementLifeCycle.New);
+        JanusGraphIndex indexToBeUpdated = mgmt.getGraphIndex(compositeIndexName);
+        JanusGraphSchemaVertex indexSchemaVertex = mgmt.getSchemaVertex(indexToBeUpdated);
+        CompositeIndexType compositeIndexTypeToBeUpdated = (CompositeIndexType) indexSchemaVertex.asIndexType();
+        Serializer serializer = graph.getDataSerializer();
+        boolean hashKeys = graph.getIndexSerializer().isHashKeys();
+        HashingUtil.HashLength hashLength = graph.getIndexSerializer().getHashLength();
+        IndexUpdate<StaticBuffer, Entry> update = IndexRecordUtil.getCompositeIndexUpdate(
+            compositeIndexTypeToBeUpdated,
+            IndexMutationType.ADD,
+            fullIndexRecord,
+            elementToBeRemoved,
+            serializer,
+            hashKeys,
+            hashLength
+        );
+        BackendTransaction backendTransaction = tx.getTxHandle();
+        backendTransaction.mutateIndex(update.getKey(), Collections.emptyList(), Collections.singletonList(update.getEntry()));
+        backendTransaction.commit();
+        tx.commit();
+        mgmt.rollback();
+        graph.close();
     }
 }
